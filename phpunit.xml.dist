@@ -11,8 +11,8 @@
          bootstrap                   = "vendor/autoload.php">
 
 <testsuites>
-        <testsuite name="Framework Unit Tests">
-            <directory suffix="Test.php">tests/Sherpa/Framework</directory>
+        <testsuite name="Unit Tests">
+            <directory suffix="Test.php">tests/Sherpa</directory>
         </testsuite>
     </testsuites>
 

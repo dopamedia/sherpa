@@ -27,6 +27,14 @@ class Kernel
     private $container;
 
     /**
+     * @return bool
+     */
+    public function isBooted(): bool
+    {
+        return $this->booted;
+    }
+
+    /**
      * @return ContainerBuilder
      */
     public function getContainer(): ContainerBuilder
