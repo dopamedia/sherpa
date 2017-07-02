@@ -12,19 +12,50 @@ namespace Sherpa\Framework;
  */
 abstract class DefaultEndpoint implements EndpointInterface
 {
+    /**
+     * @var null|string
+     */
+    private $endpointUri;
 
     /**
-     * @var ContextInterface
+     * @var ComponentInterface
+     */
+    private $component;
+
+    /**
+     * @var null|ContextInterface
      */
     private $context;
 
     /**
      * DefaultEndpoint constructor.
-     * @param ContextInterface $context
+     * @param string $endpointUri
+     * @param ComponentInterface|null $component
      */
-    public function __construct(ContextInterface $context)
+    public function __construct(
+        string $endpointUri = null,
+        ComponentInterface $component = null
+    )
     {
-        $this->context = $context;
+        $this->endpointUri = $endpointUri;
+        $this->component = $component;
+        $this->context = ($component !== null) ? $component->getContext() : null;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getEndpointUri(): ?string
+    {
+        return $this->endpointUri;
+    }
+
+    /**
+     * @return ComponentInterface
+     */
+    public function getComponent(): ComponentInterface
+    {
+        return $this->component;
     }
 
     /**

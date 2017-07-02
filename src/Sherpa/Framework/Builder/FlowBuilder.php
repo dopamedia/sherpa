@@ -10,6 +10,7 @@ use Sherpa\Framework\DefaultContext;
 use Sherpa\Framework\EndpointInterface;
 use Sherpa\Framework\Definition\FlowsDefinition;
 use Sherpa\Framework\Definition\FlowDefinition;
+use Sherpa\Framework\Flow;
 
 /**
  * Class FlowBuilder
@@ -46,13 +47,14 @@ abstract class FlowBuilder
         $this->flows = new \ArrayObject();
     }
 
+
     /**
-     * @param EndpointInterface $endpoint
+     * @param string $uri
      * @return FlowDefinition
      */
-    public function from(EndpointInterface $endpoint): FlowDefinition
+    public function from(string $uri): FlowDefinition
     {
-        return $this->flowDefinitionCollection->from($endpoint);
+        return $this->flowDefinitionCollection->from($uri);
     }
 
     /**

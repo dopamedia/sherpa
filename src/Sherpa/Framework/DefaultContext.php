@@ -15,8 +15,18 @@ use Sherpa\Framework\Util\ServiceHelper;
  * Class Context
  * @package Sherpa\Framework
  */
-class DefaultContext implements ContextInterface
+class DefaultContext implements ServiceInterface, ContextInterface
 {
+    /**
+     * @var EndpointInterface[]
+     */
+    private $endpoints = [];
+
+    /**
+     * @var ComponentInterface[]
+     */
+    private $components = [];
+
     /**
      * @var FlowsDefinition[]
      */
@@ -28,7 +38,33 @@ class DefaultContext implements ContextInterface
     private $flows;
 
     /**
-     * @param FlowBuilder $flowBuilder
+     * @inheritDoc
+     */
+    public function addComponent(string $name, ComponentInterface $component): void
+    {
+        $component->setContext($this);
+        $this->components[$name] = $component;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getComponent(string $name): ?ComponentInterface
+    {
+        return array_key_exists($name, $this->components) ? $this->components[$name] : null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getEndpoint(string $uri): EndpointInterface
+    {
+        $scheme = strtok($uri, ':');
+        return $this->getComponent($scheme)->createEndpoint($uri);
+    }
+
+    /**
+     * @inheritdoc
      */
     public function addFlows(FlowBuilder $flowBuilder): void
     {
@@ -37,8 +73,7 @@ class DefaultContext implements ContextInterface
     }
 
     /**
-     * @param \ArrayObject $flows
-     * @return void
+     * @inheritdoc
      */
     public function setFlows(\ArrayObject $flows): void
     {
@@ -46,8 +81,7 @@ class DefaultContext implements ContextInterface
     }
 
     /**
-     * @param FlowsDefinition[] $flowDefinitions
-     * @return void
+     * @inheritdoc
      */
     public function addFlowDefinitions(array $flowDefinitions): void
     {
@@ -67,7 +101,7 @@ class DefaultContext implements ContextInterface
     }
 
     /**
-     * @return void
+     * @inheritdoc
      */
     public function start(): void
     {

@@ -7,6 +7,8 @@
 require 'vendor/autoload.php';
 
 use Sherpa\Framework\Builder\FlowBuilder;
+use Sherpa\Framework\Component\Log\LogComponent;
+use Sherpa\Framework\Component\Service\ServiceComponent;
 use Sherpa\Framework\DefaultContext;
 use Sherpa\Framework\DefaultConsumer;
 use Sherpa\Framework\DefaultEndpoint;
@@ -15,26 +17,11 @@ use Sherpa\Framework\ExchangeInterface;
 use Sherpa\Framework\ProcessorInterface;
 use Sherpa\Framework\ProducerInterface;
 use Sherpa\Framework\ConsumerInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 $context = new DefaultContext();
 
-class FirstConsumer extends DefaultConsumer
-{
-    /**
-     * @inheritDoc
-     */
-    public function start(): void
-    {
-        $exchange = $this->getEndpoint()->createExchange();
-
-        try {
-            $this->getProcessor()->process($exchange);
-        } catch (\Exception $e) {
-            var_dump($e->getMessage());
-        }
-
-    }
-}
+$context->addComponent('log', new LogComponent());
 
 class FirstEndpoint extends DefaultEndpoint
 {
@@ -48,7 +35,24 @@ class FirstEndpoint extends DefaultEndpoint
      */
     public function createConsumer(ProcessorInterface $processor): ConsumerInterface
     {
-        return new FirstConsumer($this, $processor);
+        return new class ($this, $processor) extends DefaultConsumer {
+            /**
+             * @inheritDoc
+             */
+            public function start(): void
+            {
+                $exchange = $this->getEndpoint()->createExchange();
+
+                try {
+                    $this->getProcessor()->process($exchange);
+                } catch (\Exception $e) {
+                    var_dump($e->getMessage());
+                }
+
+            }
+        };
+
+
     }
 }
 
@@ -62,7 +66,7 @@ class SecondEndpoint extends DefaultEndpoint{
 
             public function process(ExchangeInterface $exchange): void
             {
-                $body = $exchange->getIn()->getBody() . ' - second producer';
+                $body = $exchange->getIn()->getBody() . 'second producer';
                 $exchange->getOut()->setBody($body);
             }
 
@@ -107,7 +111,8 @@ class FourthEndpoint extends DefaultEndpoint{
         return new class($this) extends DefaultProducer{
             public function process(ExchangeInterface $exchange): void
             {
-                var_dump($exchange->getIn()->getBody() . ' - fourth producer');
+                $body = $exchange->getIn()->getBody() . ' - fourth producer';
+                $exchange->getOut()->setBody($body);
             }
         };
     }
@@ -119,16 +124,28 @@ class FourthEndpoint extends DefaultEndpoint{
 
 }
 
+$container = new ContainerBuilder();
+$container->register('FirstEndpoint', FirstEndpoint::class);
+$container->register('SecondEndpoint', SecondEndpoint::class);
+$container->register('ThirdEndpoint', ThirdEndpoint::class);
+$container->register('FourthEndpoint', FourthEndpoint::class);
+
+$serviceComponent = new ServiceComponent($container);
+$context->addComponent('service', $serviceComponent);
+
 $context->addFlows(new class extends FlowBuilder {
     /**
      * @inheritDoc
      */
     protected function configure(): void
     {
-        $this->from(new FirstEndpoint($this->getContext()))
-            ->to(new SecondEndpoint($this->getContext()))
-            ->to(new ThirdEndpoint($this->getContext()))
-            ->to(new FourthEndpoint($this->getContext()));
+        $this->from('service:FirstEndpoint')
+            ->to('service:SecondEndpoint')
+            ->to('log')
+            ->to('service:ThirdEndpoint')
+            ->to('log')
+            ->to('service:FourthEndpoint')
+            ->to('log');
     }
 
 });

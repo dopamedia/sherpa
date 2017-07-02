@@ -34,13 +34,13 @@ class FlowsDefinition
     }
 
     /**
-     * @param EndpointInterface $endpoint
+     * @param string $uri
      * @return FlowDefinition
      */
-    public function from(EndpointInterface $endpoint): FlowDefinition
+    public function from(string $uri): FlowDefinition
     {
         $flowDefinition = $this->createFlowDefinition();
-        $flowDefinition->from($endpoint);
+        $flowDefinition->from($uri);
         return $this->flow($flowDefinition);
     }
 

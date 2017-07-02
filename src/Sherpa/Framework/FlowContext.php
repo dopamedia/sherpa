@@ -17,6 +17,11 @@ use Sherpa\Framework\Processor\Pipeline;
 class FlowContext
 {
     /**
+     * @var ContextInterface
+     */
+    private $context;
+
+    /**
      * @var FlowDefinition
      */
     private $flowDefinition;
@@ -43,15 +48,18 @@ class FlowContext
 
     /**
      * FlowContext constructor.
+     * @param ContextInterface $context
      * @param FlowDefinition $flowDefinition
      * @param FromDefinition $fromDefinition
      * @param \ArrayObject $flows
      */
     public function __construct(
+        ContextInterface $context,
         FlowDefinition $flowDefinition,
         FromDefinition $fromDefinition,
         \ArrayObject $flows
     ) {
+        $this->context = $context;
         $this->flowDefinition = $flowDefinition;
         $this->fromDefinition = $fromDefinition;
         $this->flows = $flows;
@@ -86,4 +94,14 @@ class FlowContext
         }
         return $this->endpoint;
     }
+
+    /**
+     * @param string $uri
+     * @return EndpointInterface
+     */
+    public function resolveEndpoint(string $uri): EndpointInterface
+    {
+        return $this->flowDefinition->resolveEndpoint($this->context, $uri);
+    }
+
 }

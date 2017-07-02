@@ -6,9 +6,11 @@
 
 namespace Sherpa\Framework\Definition;
 
+use Sherpa\Framework\ContextInterface;
 use Sherpa\Framework\DefaultContext;
 use Sherpa\Framework\EndpointInterface;
 use Sherpa\Framework\FlowContext;
+use Sherpa\Framework\Util\ContextHelper;
 
 /**
  * Class FlowDefinition
@@ -32,22 +34,22 @@ class FlowDefinition
     private $context;
 
     /**
-     * @param EndpointInterface $endpoint
+     * @param string $uri
      * @return FlowDefinition
      */
-    public function from(EndpointInterface $endpoint): FlowDefinition
+    public function from(string $uri): FlowDefinition
     {
-        $this->inputs[] = new FromDefinition($endpoint);
+        $this->inputs[] = new FromDefinition($uri);
         return $this;
     }
 
     /**
-     * @param EndpointInterface $endpoint
+     * @param string $uri
      * @return FlowDefinition
      */
-    public function to(EndpointInterface $endpoint): FlowDefinition
+    public function to(string $uri): FlowDefinition
     {
-        $this->outputs[] = new ToDefinition($endpoint);
+        $this->outputs[] = new ToDefinition($uri);
         return $this;
     }
 
@@ -82,7 +84,7 @@ class FlowDefinition
      */
     private function addFlowsFromType(\ArrayObject $flows, FromDefinition $fromType): void
     {
-        $flowContext = new FlowContext($this, $fromType, $flows);
+        $flowContext = new FlowContext($this->context, $this, $fromType, $flows);
 
         /** @var ProcessorDefinition $output */
         foreach ($this->outputs as $output) {
@@ -90,6 +92,16 @@ class FlowDefinition
         }
 
         $flowContext->commit();
+    }
+
+    /**
+     * @param ContextInterface $context
+     * @param string $uri
+     * @return EndpointInterface
+     */
+    public function resolveEndpoint(ContextInterface $context, string $uri): EndpointInterface
+    {
+        return ContextHelper::getMandatoryEndpoint($context, $uri);
     }
 
 }

@@ -10,23 +10,29 @@ use Sherpa\Framework\EndpointInterface;
 use Sherpa\Framework\FlowContext;
 
 /**
- * Class FromType
- * @package Sherpa\Framework\Model
+ * Class FromDefinition
+ * @package Sherpa\Framework\Definition
  */
 class FromDefinition
 {
+
     /**
-     * @var EndpointInterface
+     * @var string
+     */
+    private $uri;
+
+    /**
+     * @var null|EndpointInterface
      */
     private $endpoint;
 
     /**
-     * FromType constructor.
-     * @param EndpointInterface $endpoint
+     * FromDefinition constructor.
+     * @param string $uri
      */
-    public function __construct(EndpointInterface $endpoint)
+    public function __construct(string $uri)
     {
-        $this->endpoint = $endpoint;
+        $this->uri = $uri;
     }
 
     /**
@@ -35,6 +41,7 @@ class FromDefinition
      */
     public function resolveEndpoint(FlowContext $flowContext): EndpointInterface
     {
-        return $this->endpoint;
+        return $this->endpoint ?: $flowContext->resolveEndpoint($this->uri);
     }
+
 }

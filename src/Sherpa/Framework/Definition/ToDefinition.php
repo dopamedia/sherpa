@@ -7,28 +7,33 @@
 namespace Sherpa\Framework\Definition;
 
 use Sherpa\Framework\EndpointInterface;
-use Sherpa\Framework\Processor\SendProcessor;
 use Sherpa\Framework\FlowContext;
+use Sherpa\Framework\Processor\SendProcessor;
 use Sherpa\Framework\ProcessorInterface;
 
 /**
- * Class ToType
- * @package Sherpa\Framework\Model
+ * Class ToDefinition
+ * @package Sherpa\Framework\Definition
  */
 class ToDefinition extends ProcessorDefinition
 {
     /**
-     * @var EndpointInterface
+     * @var string
+     */
+    private $uri;
+
+    /**
+     * @var null|EndpointInterface
      */
     private $endpoint;
 
     /**
-     * ToType constructor.
-     * @param EndpointInterface $endpoint
+     * ToDefinition constructor.
+     * @param string $uri
      */
-    public function __construct(EndpointInterface $endpoint)
+    public function __construct(string $uri)
     {
-        $this->endpoint = $endpoint;
+        $this->uri = $uri;
     }
 
     /**
@@ -36,6 +41,20 @@ class ToDefinition extends ProcessorDefinition
      */
     public function createProcessor(FlowContext $flowContext): ProcessorInterface
     {
-        return new SendProcessor($this->endpoint);
+        $endpoint = $this->resolveEndpoint($flowContext);
+        return new SendProcessor($endpoint);
     }
+
+    /**
+     * @param FlowContext $flowContext
+     * @return EndpointInterface
+     */
+    public function resolveEndpoint(FlowContext $flowContext): EndpointInterface
+    {
+        if ($this->endpoint === null) {
+            $this->endpoint = $flowContext->resolveEndpoint($this->uri);
+        }
+        return $this->endpoint;
+    }
+
 }

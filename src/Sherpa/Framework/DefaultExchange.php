@@ -31,7 +31,7 @@ class DefaultExchange implements ExchangeInterface
      * DefaultExchange constructor.
      * @param ContextInterface $context
      */
-    public function __construct(ContextInterface $context)
+    public function __construct(ContextInterface $context = null)
     {
         $this->context = $context;
     }
