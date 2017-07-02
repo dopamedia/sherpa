@@ -7,14 +7,13 @@
 namespace Sherpa\Framework;
 
 /**
- * Interface ProcessorInterface
+ * Interface ServiceInterface
  * @package Sherpa\Framework
  */
-interface ProcessorInterface
+interface ServiceInterface
 {
     /**
-     * @param ExchangeInterface $exchange
      * @return void
      */
-    public function process(ExchangeInterface $exchange): void;
+    public function start(): void;
 }

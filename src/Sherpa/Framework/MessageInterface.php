@@ -1,7 +1,7 @@
 <?php
 /**
  * User: Andreas Penz <office@dopa.media>
- * Date: 26.06.17
+ * Date: 02.07.17
  */
 
 namespace Sherpa\Framework;
@@ -12,6 +12,11 @@ namespace Sherpa\Framework;
  */
 interface MessageInterface
 {
+    /**
+     * @return ExchangeInterface
+     */
+    public function getExchange(): ExchangeInterface;
+
     /**
      * @return mixed
      */

@@ -1,7 +1,7 @@
 <?php
 /**
  * User: Andreas Penz <office@dopa.media>
- * Date: 26.06.17
+ * Date: 02.07.17
  */
 
 namespace Sherpa\Framework;
@@ -10,35 +10,34 @@ namespace Sherpa\Framework;
  * Class Flow
  * @package Sherpa\Framework
  */
-class Flow implements StageInterface
+abstract class Flow
 {
     /**
-     * @var StageInterface[]
+     * @var \ArrayObject
      */
-    private $stages = [];
-
-    /**
-     * @var ProcessorInterface
-     */
-    private $processor;
+    private $services;
 
     /**
      * Flow constructor.
-     * @param StageInterface[] $stages
-     * @param ProcessorInterface $processor
      */
-    public function __construct(array $stages, ProcessorInterface $processor)
+    public function __construct()
     {
-        $this->stages = $stages;
-        $this->processor = $processor;
+        $this->services = new \ArrayObject();
     }
 
     /**
-     * @inheritdoc
+     * @return \ArrayObject
      */
-    public function process(ExchangeInterface $exchange): ExchangeInterface
+    public function getServices(): \ArrayObject
     {
-        return $this->processor->process($this->stages, $exchange);
+        $this->addServices($this->services);
+        return $this->services;
     }
+
+    /**
+     * @param \ArrayObject $services
+     * @return void
+     */
+    abstract protected function addServices(\ArrayObject $services): void;
 
 }
